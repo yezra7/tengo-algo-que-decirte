@@ -75,10 +75,8 @@ footer{font:10px Arial,sans-serif;letter-spacing:2px;color:#a18b79;text-align:ce
       <p class="small-dedication">Para mi Pollito 🤍</p>
       <div class="music-controls">
         <button class="btn primary" id="musicButton" type="button">♫ Reproducir música</button>
-        <label class="btn" for="musicFile">Elegir canción</label>
-        <input id="musicFile" type="file" accept="audio/*" hidden>
       </div>
-      <div class="music-status" id="musicStatus" aria-live="polite">Puedes elegir una canción de tu dispositivo.</div>
+      <div class="music-status" id="musicStatus" aria-live="polite">Una canción para acompañar esta carta. 🤍</div>
       <div style="margin-top:24px;color:#9b8372;font:10px Arial,sans-serif;letter-spacing:2px">ABRE ESTE LIBRO CONMIGO ↓</div>
     </section>
 
@@ -134,7 +132,7 @@ footer{font:10px Arial,sans-serif;letter-spacing:2px;color:#a18b79;text-align:ce
   <footer>HECHO CON AMOR, PENSANDO EN TI 🌷</footer>
 </div>
 
-<audio id="music" loop preload="none"></audio>
+<audio id="music" src="musica.mp3" loop preload="metadata"></audio>
 <script>
 const pages = [...document.querySelectorAll('.page')];
 const prevButton = document.getElementById('prevButton');
@@ -142,10 +140,8 @@ const nextButton = document.getElementById('nextButton');
 const pageCount = document.getElementById('pageCount');
 const music = document.getElementById('music');
 const musicButton = document.getElementById('musicButton');
-const musicFile = document.getElementById('musicFile');
 const musicStatus = document.getElementById('musicStatus');
 let currentPage = 0;
-let chosenAudioUrl = null;
 
 function showPage(index) {
   currentPage = Math.max(0, Math.min(pages.length - 1, index));
@@ -168,30 +164,18 @@ function showPage(index) {
 prevButton.addEventListener('click', () => showPage(currentPage - 1));
 nextButton.addEventListener('click', () => showPage(currentPage + 1));
 
-musicFile.addEventListener('change', () => {
-  const file = musicFile.files && musicFile.files[0];
-  if (!file) return;
-  if (chosenAudioUrl) URL.revokeObjectURL(chosenAudioUrl);
-  chosenAudioUrl = URL.createObjectURL(file);
-  music.src = chosenAudioUrl;
-  music.load();
-  musicStatus.textContent = `Canción elegida: ${file.name}`;
-  musicButton.textContent = '♫ Reproducir música';
+music.addEventListener('error', () => {
+  musicStatus.textContent = 'No se encontró musica.mp3. Súbelo junto a index.html en GitHub.';
 });
 
 musicButton.addEventListener('click', async () => {
-  if (!music.src) {
-    musicFile.click();
-    musicStatus.textContent = 'Elige una canción de audio en tu dispositivo para escucharla.';
-    return;
-  }
   if (music.paused) {
     try {
       await music.play();
       musicButton.textContent = '♫ Pausar música';
       musicStatus.textContent = 'Reproduciendo música 🤍';
     } catch (e) {
-      musicStatus.textContent = 'No se pudo reproducir. Elige otro archivo de audio.';
+      musicStatus.textContent = 'No se pudo reproducir musica.mp3. Revisa que el archivo esté subido y que el nombre coincida.';
     }
   } else {
     music.pause();
@@ -224,6 +208,15 @@ function createPetals(amount) {
     petal.addEventListener('animationend', () => petal.remove());
   }
 }
+const voicePlayer = document.querySelector('.voice-player');
+if (voicePlayer) {
+  voicePlayer.addEventListener('error', () => {
+    const hint = document.querySelector('.voice-hint');
+    if (hint) hint.textContent =
+      'No se encontró audio-para-ti.mp3. Súbelo junto a index.html en GitHub.';
+  });
+}
+
 showPage(0);
 window.addEventListener('load', () => createPetals(8));
 </script>
